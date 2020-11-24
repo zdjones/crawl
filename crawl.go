@@ -110,12 +110,12 @@ func (c Crawler) startFetcher(urls <-chan string, out chan<- Result) {
 	}
 }
 
-// Crawl ochestrates the crawling of all same-subdomain links, beginning at
+// Crawl orchestrates the crawling of all same-subdomain links, beginning at
 // the provided address/URL. 'addr' must be a valid formatted URL. 'numfetchers'
-// determines the number of fetchers operatig concurrently. Aim for numfetchers
+// determines the number of fetchers operating concurrently. Aim for numfetchers
 // to be high enough that we do not spend too much time blocked on network IO,
 // but low enough that we don't assault the receiving HTTP servers and/or
-// overfow our own stack.
+// overflow our own stack.
 // The results will be returned sorted by URL.
 func (c Crawler) Crawl(addr string) ([]Result, error) {
 
@@ -127,7 +127,7 @@ func (c Crawler) Crawl(addr string) ([]Result, error) {
 	tofetch := make(chan string)
 	fetched := make(chan Result)
 
-	// Start a fixed number of crawlers. This will help us limit our
+	// Start a fixed number of fetchers. This will help us limit our
 	// footprint on the servers we crawl. It is also just prudent
 	// to control our own outlay of resources.
 	for i := 0; i < c.numFetchers; i++ {
@@ -155,7 +155,6 @@ func (c Crawler) Crawl(addr string) ([]Result, error) {
 		var sendWork chan<- string
 		var next string
 		if len(work) > 0 {
-			//
 			sendWork = tofetch
 			next = work[0]
 			// In case any duplicates slip through to the work queue, don't fetch the again.
@@ -188,7 +187,7 @@ func (c Crawler) Crawl(addr string) ([]Result, error) {
 			base, err := url.Parse(page.URL)
 			if err != nil {
 				log.Println(err)
-				// Don't continue procesing links from an unparsable URL.
+				// Don't continue processing links from an unparseable URL.
 				break
 			}
 			// Process each link found on this page.
@@ -201,12 +200,12 @@ func (c Crawler) Crawl(addr string) ([]Result, error) {
 				link, err := base.Parse(l)
 				if err != nil {
 					log.Println(err)
-					// Don't further process this bad/unparsable link.
+					// Don't further process this bad/unparseable link.
 					continue
 				}
 
-				// Compare link
-				// Clear the fragment and query for more accuate comparison.
+				// Filter link
+				// Clear the fragment and query for more accurate comparison.
 				link.Fragment = ""
 				link.RawQuery = ""
 				l = link.String()
